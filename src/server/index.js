@@ -13,6 +13,9 @@ app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 // your API calls
+// const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
+// const nasaApiRoversData = await fetchAsync(`${ROVERS_URL}?api_key=${process.env.API_KEY}`);
+// const nasaApiPhotosData = await fetchAsync(`${ROVERS_URL}/${name}/photos?sol=1000&page=1&api_key=${process.env.API_KEY}`);
 
 // example API call
 app.get('/apod', async (req, res) => {
