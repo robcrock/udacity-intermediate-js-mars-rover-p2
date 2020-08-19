@@ -44,6 +44,7 @@ const App = state => {
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
+  // getRoverData(store);
   render(root, store);
 });
 
@@ -91,10 +92,19 @@ const ImageOfTheDay = apod => {
 };
 
 // ------------------------------------------------------  API CALLS
+const getRoverData = state => {
+  const rover = state.rovers[0];
+
+  fetch(`http://localhost:3000/rover`)
+    .then(res => res.json())
+    .then(r => r);
+
+  // return data;
+};
 
 // Example API call
 const getImageOfTheDay = state => {
-  const { apod } = state;
+  let { apod } = state;
 
   fetch(`http://localhost:3000/apod`)
     .then(res => res.json())

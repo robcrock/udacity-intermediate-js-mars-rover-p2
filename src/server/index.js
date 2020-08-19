@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -16,6 +17,25 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 // const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
 // const nasaApiRoversData = await fetchAsync(`${ROVERS_URL}?api_key=${process.env.API_KEY}`);
 // const nasaApiPhotosData = await fetchAsync(`${ROVERS_URL}/${name}/photos?sol=1000&page=1&api_key=${process.env.API_KEY}`);
+
+app.get('/rover', async (req, res) => {
+  const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
+  const nasaApiRoverData = `${ROVERS_URL}?api_key=${process.env.API_KEY}`;
+  // const nasaApiRoversData = 'https://api.nasa.gov/mars-photos/api/v1/rovers?api_key=2stiEBelXQJW9ZOk1DhXepf9p8kMjM0AaP0kQCMh'
+  // const nasaApiRoversData = await fetch(
+  //   `${ROVERS_URL}?api_key=${process.env.API_KEY}`
+  // );
+  // const nasaApiPhotosData = await fetch(
+  //   `${ROVERS_URL}/${name}/photos?sol=1000&page=1&api_key=${process.env.API_KEY}`
+  // );
+
+  try {
+    const nasaData = await fetch(`${nasaApiRoverData}`).then(res => res.json());
+    res.send({ nasaData });
+  } catch (err) {
+    console.log('error:', err);
+  }
+});
 
 // example API call
 app.get('/apod', async (req, res) => {
