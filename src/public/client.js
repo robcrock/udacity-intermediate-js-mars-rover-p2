@@ -1,3 +1,6 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-use-before-define */
 const store = {
   user: { name: 'Student' },
   apod: '',
@@ -36,7 +39,8 @@ const App = state => {
                     explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
                     but generally help with discoverability of relevant imagery.
                 </p>
-                ${ImageOfTheDay(apod)}
+                <!-- {ImageOfTheDay(apod)} -->
+                ${RoverData(rovers[0])}
             </section>
         </main>
         <footer></footer>
@@ -45,7 +49,8 @@ const App = state => {
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-  // getRoverData(store);
+  // console.log(store.rovers[0]);
+  // getRoverData(store.rovers[0]);
   render(root, store);
 });
 
@@ -81,26 +86,56 @@ const ImageOfTheDay = apod => {
   // check if the photo of the day is actually type video!
   if (apod.media_type === 'video') {
     return `
-            <p>See today's featured video <a href="${apod.url}">here</a></p>
-            <p>${apod.title}</p>
-            <p>${apod.explanation}</p>
+            <!-- <p>See today's featured video <a href="${apod.url}">here</a></p> -->
+            <!-- <p>${apod.title}</p> -->
+            <!-- <p>${apod.explanation}</p> -->
         `;
   }
   return `
-            <img src="${apod.image.url}" height="350px" width="100%" />
-            <p>${apod.image.explanation}</p>
+            <!-- <img src="${apod.image.url}" height="350px" width="100%" /> -->
+            <!-- <p>${apod.image.explanation}</p> -->
         `;
+};
+
+const RoverData = rover => {
+  // If image does not already exist, or it is not from today -- request it again
+  // const today = new Date();
+  // const photodate = new Date(apod.date);
+  // console.log(photodate.getDate(), today.getDate());
+
+  // console.log(photodate.getDate() === today.getDate());
+  // if (!apod || apod.date === today.getDate()) {
+  //   getImageOfTheDay(store);
+  // }
+
+  const roverPhoto = getRoverData(rover);
+  console.log(roverPhoto.r);
+
+  // check if the photo of the day is actually type video!
+  // if (apod.media_type === 'video') {
+  //   return `
+  //           <!-- <p>See today's featured video <a href="${apod.url}">here</a></p> -->
+  //           <!-- <p>${apod.title}</p> -->
+  //           <!-- <p>${apod.explanation}</p> -->
+  //       `;
+  // }
+  // return `
+  //           <!-- <img src="${apod.image.url}" height="350px" width="100%" /> -->
+  //           <!-- <p>${apod.image.explanation}</p> -->
+  //       `;
 };
 
 // ------------------------------------------------------  API CALLS
 const getRoverData = state => {
-  // const rover = state.rovers[0];
-
-  fetch(`http://localhost:3000/rover`)
+  const rover = state;
+  fetch(`http://localhost:3000/rover/${rover}`)
     .then(res => res.json())
-    .then(r => r);
+    .then(r => {
+      // console.log(r);
+      updateStore(store, { r });
+    });
 
-  // return data;
+  return '';
 };
 
 // Example API call
@@ -111,8 +146,6 @@ const getImageOfTheDay = state => {
     .then(res => res.json())
     .then(apod => {
       // console.log(apod);
-      updateStore(store, { apod })
+      updateStore(store, { apod });
     });
-
-  return data;
 };
