@@ -5,6 +5,7 @@ const store = {
   user: { name: 'Student' },
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+  tab: '', // w
 };
 
 // add our markup to the page
@@ -16,20 +17,55 @@ const updateStore = (store, newState) => {
   render(root, store);
 };
 
-const curiosityClickHandler = () => {
-  console.log('clicked');
-  // render(root, store);
-}
+// const curiosityClickHandler = () => {
+//   console.log('clicked');
+//   // render(root, store);
+// }
 
 const render = async (root, state) => {
   root.innerHTML = App(state);
 
-  const curiosityButton = document.querySelector('#curiosity');
-  if (curiosityButton) {
-    curiosityButton.addEventListener('click', curiosityClickHandler);
-  }
-//   window.setTimeout(()=>{
-// },50);
+  // const curiosityButton = document.querySelector('#curiosity');
+  // if (curiosityButton) {
+  //   curiosityButton.addEventListener('click', curiosityClickHandler);
+  // }
+};
+
+const getRoverData = state => {
+  const rover = state;
+  fetch(`http://localhost:3000/rover/${rover}`)
+    .then(res => res.json())
+    .then(r => {
+      // console.log(r);
+      updateStore(store, { r });
+    });
+};
+
+const RoverData = rover => {
+  getRoverData(rover);
+  return `<p>See today's featured video ${store.r}</p>`
+
+// // Example of a pure function that renders infomation requested from the backend
+// const ImageOfTheDay = apod => {
+
+//   // console.log(photodate.getDate() === today.getDate());
+//   if (!apod || apod.date === today.getDate()) {
+//     getImageOfTheDay(store);
+//   }
+
+//   // check if the photo of the day is actually type video!
+//   if (apod.media_type === 'video') {
+//     return `
+//             <!-- <p>See today's featured video <a href="${apod.url}">here</a></p> -->
+//             <!-- <p>${apod.title}</p> -->
+//             <!-- <p>${apod.explanation}</p> -->
+//         `;
+//   }
+//   return `
+//             <!-- <img src="${apod.image.url}" height="350px" width="100%" /> -->
+//             <!-- <p>${apod.image.explanation}</p> -->
+//         `;
+// };
 };
 
 // create content
@@ -39,30 +75,22 @@ const App = state => {
   // Add to template literal for potential testing
   // {ImageOfTheDay(apod)}
 
-
-
   return `
         <header>
           <button id='curiosity'>Curiosity</button>
         </header>
         <main>
-            ${Greeting(store.user.name)}
             ${RoverData(rovers[0])}
         </main>
         <footer></footer>
     `;
 
-
 };
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-  // console.log(store.rovers[0]);
-  // getRoverData(store.rovers[0]);
   render(root, store);
 });
-
-
 
 // ------------------------------------------------------  COMPONENTS
 // TODO
@@ -107,23 +135,7 @@ const ImageOfTheDay = apod => {
         `;
 };
 
-const RoverData = rover => {
-  const roverPhoto = getRoverData(rover);
-  console.log(roverPhoto);
-};
-
 // ------------------------------------------------------  API CALLS
-const getRoverData = state => {
-  const rover = state;
-  fetch(`http://localhost:3000/rover/${rover}`)
-    .then(res => res.json())
-    .then(r => {
-      // console.log(r);
-      updateStore(store, { r });
-    });
-
-  return '';
-};
 
 // Example API call
 const getImageOfTheDay = state => {
