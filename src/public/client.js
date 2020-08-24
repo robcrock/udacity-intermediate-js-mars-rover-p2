@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-shadow */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-use-before-define */
@@ -22,13 +23,39 @@ const updateStore = (store, newState) => {
 //   // render(root, store);
 // }
 
+// W3Schools tab reference:
+// https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
+
+function openPage(pageName, elmnt, color) {
+  // Hide all elements with class="tabcontent" by default */
+  let i;
+
+  const tabcontent = document.getElementsByClassName('tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+
+  // Remove the background color of all tablinks/buttons
+  const tablinks = document.getElementsByClassName('tablink');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].style.backgroundColor = '';
+  }
+
+  // Show the specific tab content
+  document.getElementById(pageName).style.display = 'block';
+  document.getElementById(pageName).style.backgroundColor = color;
+
+  // Add the specific color to the button used to open the tab content
+  // console.log(elmnt);
+  elmnt.style.backgroundColor = color;
+}
+
 const render = async (root, state) => {
   root.innerHTML = App(state);
 
-  // const curiosityButton = document.querySelector('#curiosity');
-  // if (curiosityButton) {
-  //   curiosityButton.addEventListener('click', curiosityClickHandler);
-  // }
+  // Get the element with id="defaultOpen" and click on it
+  document.getElementById('defaultOpen').click();
+
 };
 
 const getRoverData = state => {
@@ -58,17 +85,44 @@ const RoverData = rover => {
   }
 };
 
+{
+  /* <header>
+<button id='curiosity'>Curiosity</button>
+</header>
+<main>
+  ${RoverData(rovers[0])}
+</main>
+<footer></footer> */
+}
+
 // create content
 const App = state => {
   const { rovers, apod } = state;
   return `
-        <header>
-          <button id='curiosity'>Curiosity</button>
-        </header>
-        <main>
-            ${RoverData(rovers[0])}
-        </main>
-        <footer></footer>
+    <button class="tablink" onclick="openPage('pod', this, 'red')" id="defaultOpen">Picture of the Day</button>
+    <button class="tablink" onclick="openPage('curiosity', this, 'green')">Curiosity</button>
+    <button class="tablink" onclick="openPage('opportunity', this, 'blue')">Opportunity</button>
+    <button class="tablink" onclick="openPage('spirit', this, 'orange')">Spirit</button>
+
+    <div id="pod" class="tabcontent">
+      <h3>Home</h3>
+      <p>Home is where the heart is..</p>
+    </div>
+
+    <div id="curiosity" class="tabcontent">
+      <h3>News</h3>
+      <p>Some news this fine day!</p>
+    </div>
+
+    <div id="opportunity" class="tabcontent">
+      <h3>Contact</h3>
+      <p>Get in touch, or swing by for a cup of coffee.</p>
+    </div>
+
+    <div id="spirit" class="tabcontent">
+      <h3>About</h3>
+      <p>Who we are and what we do.</p>
+    </div>
     `;
 };
 
