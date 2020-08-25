@@ -21,17 +21,11 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 // https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2015-6-3&api_key=DEMO_KEY
 
 app.get('/rover/:name?', async (req, res) => {
+  // UNCOMMENT TO RUN LOCAL API KEY
+  // DO NOT DELETE
   const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
-  let key = 'rovers';
   let url = ROVERS_URL;
   const { name } = req.params;
-  // const nasaApiRoversData = 'https://api.nasa.gov/mars-photos/api/v1/rovers?api_key=2stiEBelXQJW9ZOk1DhXepf9p8kMjM0AaP0kQCMh'
-  // const nasaApiRoversData = await fetch(
-  //   `${ROVERS_URL}?api_key=${process.env.API_KEY}`
-  // );
-  // const nasaApiPhotosData = await fetch(
-  //   `${ROVERS_URL}/${name}/photos?sol=1000&page=1&api_key=${process.env.API_KEY}`
-  // );
 
   if (name) {
     url += `/${name}/photos?earth_date=2015-6-3&api_key=${process.env.API_KEY}`;
@@ -39,19 +33,25 @@ app.get('/rover/:name?', async (req, res) => {
     url += `?api_key=${process.env.API_KEY}`;
   }
 
-  try {
-    const nasaData = await fetch(url).then(res => res.json());
+  // const url = 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2015-6-3&api_key=DEMO_KEY'
 
+  try {
+    const nasaData = await fetch(url).then(response => response.json());
+
+    // return res.send(nasaData);
+    // DO NOT DELETE
     if (name) {
       return res.send(nasaData);
     }
 
+    // DO NOT DELETE
     const roverData = nasaData.rovers.map(data => ({
       landing_date: data.landing_date,
       launch_date: data.launch_date,
       status: data.status,
     }));
 
+    // DO NOT DELETE
     res.send(roverData);
   } catch (err) {
     console.log('error:', err);
@@ -61,9 +61,10 @@ app.get('/rover/:name?', async (req, res) => {
 // example API call
 app.get('/apod', async (req, res) => {
   try {
-    let image = await fetch(
+    const image = await fetch(
       `https://api.nasa.gov/planetary/apod?api_key=${process.env.API_KEY}`
-    ).then(res => res.json());
+    ).then(response => response.json());
+
     res.send({ image });
   } catch (err) {
     console.log('error:', err);

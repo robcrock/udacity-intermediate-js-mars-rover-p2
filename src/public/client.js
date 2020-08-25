@@ -7,6 +7,8 @@ const store = {
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
   tab: '', // w
+  r: null, // rover
+  pageName: '' //
 };
 
 // add our markup to the page
@@ -14,7 +16,6 @@ const root = document.getElementById('root');
 
 const updateStore = (store, newState) => {
   store = Object.assign(store, newState);
-  console.log(store);
   render(root, store);
 };
 
@@ -27,62 +28,71 @@ const updateStore = (store, newState) => {
 // https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
 
 function openPage(pageName, elmnt, color) {
-  // Hide all elements with class="tabcontent" by default */
-  let i;
 
-  const tabcontent = document.getElementsByClassName('tabcontent');
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = 'none';
-  }
+  updateStore(store, { pageName })
 
-  // Remove the background color of all tablinks/buttons
-  const tablinks = document.getElementsByClassName('tablink');
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].style.backgroundColor = '';
-  }
+  // // Hide all elements with class="tabcontent" by default */
+  // let i;
 
-  // Show the specific tab content
-  document.getElementById(pageName).style.display = 'block';
-  document.getElementById(pageName).style.backgroundColor = color;
+  // const tabcontent = document.getElementsByClassName('tabcontent');
+  // for (i = 0; i < tabcontent.length; i++) {
+  //   tabcontent[i].style.display = 'none';
+  // }
 
-  // Add the specific color to the button used to open the tab content
-  // console.log(elmnt);
-  elmnt.style.backgroundColor = color;
+  // // Remove the background color of all tablinks/buttons
+  // const tablinks = document.getElementsByClassName('tablink');
+  // for (i = 0; i < tablinks.length; i++) {
+  //   tablinks[i].style.backgroundColor = '';
+  // }
+
+  // // Show the specific tab content
+  // document.getElementById(pageName).style.display = 'block';
+  // document.getElementById(pageName).style.backgroundColor = color;
+
+  // // Add the specific color to the button used to open the tab content
+  // // console.log(elmnt);
+  // elmnt.style.backgroundColor = color;
+
+  //console.log(RoverData('curiosity'));
 }
 
 const render = async (root, state) => {
   root.innerHTML = App(state);
 
   // Get the element with id="defaultOpen" and click on it
-  document.getElementById('defaultOpen').click();
-
+  // document.getElementById('defaultOpen').click();
 };
 
-const getRoverData = state => {
-  const rover = state;
+const getRoverData = rover => {
+  //const rover = state;
   fetch(`http://localhost:3000/rover/${rover}`)
     .then(res => res.json())
     .then(r => {
-      // console.log(r);
+      console.log(r);
       updateStore(store, { r });
     });
 };
 
-let called = false;
+let called = null;
 const RoverData = rover => {
-  if (!called) {
-    called = true;
+  console.log('ROVERDATA', rover, store.r);
+  if (called !== rover) {
+    console.log('called', called, rover)
+    called = rover;
     getRoverData(rover);
-    return `
-      <h1>Curiosity</h1>
-      <img src="${store.r.url}" height="350px" width="100%" />
-      <ul>
-        <li>See today's featured video ${store.r.launch_date}</li>
-        <li>See today's featured video ${store.r.landing_date}</li>
-        <li>See today's featured video ${store.r.status}</li>
-      </ul>
-      `;
   }
+  if (!store.r) {
+    return `<h1>Loading...</h1>`;
+  }
+  return `
+    <h1>Curiosity</h1>
+    <img src="${store.r.photos[0].img_src}" height="350px" width="100%" />
+    <ul>
+      <li>See today's featured video ${store.r.photos[0].rover.launch_date}</li>
+      <li>See today's featured video ${store.r.photos[0].rover.landing_date}</li>
+      <li>See today's featured video ${store.r.photos[0].rover.status}</li>
+    </ul>
+    `;
 };
 
 {
@@ -97,7 +107,7 @@ const RoverData = rover => {
 
 // create content
 const App = state => {
-  const { rovers, apod } = state;
+  const { rovers, apod, pageName } = state;
   return `
     <button class="tablink" onclick="openPage('pod', this, 'red')" id="defaultOpen">Picture of the Day</button>
     <button class="tablink" onclick="openPage('curiosity', this, 'green')">Curiosity</button>
@@ -110,18 +120,15 @@ const App = state => {
     </div>
 
     <div id="curiosity" class="tabcontent">
-      <h3>News</h3>
-      <p>Some news this fine day!</p>
+      ${pageName === rovers[0].toLowerCase() ? RoverData(rovers[0].toLowerCase()) : '' }
     </div>
 
     <div id="opportunity" class="tabcontent">
-      <h3>Contact</h3>
-      <p>Get in touch, or swing by for a cup of coffee.</p>
+      ${pageName === rovers[1].toLowerCase() ? RoverData(rovers[1].toLowerCase()) : ''}
     </div>
 
     <div id="spirit" class="tabcontent">
-      <h3>About</h3>
-      <p>Who we are and what we do.</p>
+      ${pageName === rovers[2].toLowerCase() ? RoverData(rovers[2].toLowerCase()) : ''}
     </div>
     `;
 };
