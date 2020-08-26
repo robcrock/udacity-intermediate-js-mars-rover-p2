@@ -8,7 +8,7 @@ const store = {
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
   tab: '', // w
   r: null, // rover
-  pageName: '' //
+  pageName: '', //
 };
 
 // add our markup to the page
@@ -28,8 +28,7 @@ const updateStore = (store, newState) => {
 // https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
 
 function openPage(pageName, elmnt, color) {
-
-  updateStore(store, { pageName })
+  updateStore(store, { pageName });
 
   // // Hide all elements with class="tabcontent" by default */
   // let i;
@@ -53,7 +52,7 @@ function openPage(pageName, elmnt, color) {
   // // console.log(elmnt);
   // elmnt.style.backgroundColor = color;
 
-  //console.log(RoverData('curiosity'));
+  // console.log(RoverData('curiosity'));
 }
 
 const render = async (root, state) => {
@@ -64,7 +63,7 @@ const render = async (root, state) => {
 };
 
 const getRoverData = rover => {
-  //const rover = state;
+  // const rover = state;
   fetch(`http://localhost:3000/rover/${rover}`)
     .then(res => res.json())
     .then(r => {
@@ -75,9 +74,9 @@ const getRoverData = rover => {
 
 let called = null;
 const RoverData = rover => {
-  console.log('ROVERDATA', rover, store.r);
+  // console.log('ROVERDATA', rover, store.r);
   if (called !== rover) {
-    console.log('called', called, rover)
+    // console.log('called', called, rover);
     called = rover;
     getRoverData(rover);
   }
@@ -85,51 +84,47 @@ const RoverData = rover => {
     return `<h1>Loading...</h1>`;
   }
   return `
-    <h1>Curiosity</h1>
-    <img src="${store.r.photos[0].img_src}" height="350px" width="100%" />
-    <ul>
-      <li>See today's featured video ${store.r.photos[0].rover.launch_date}</li>
-      <li>See today's featured video ${store.r.photos[0].rover.landing_date}</li>
-      <li>See today's featured video ${store.r.photos[0].rover.status}</li>
-    </ul>
+    <div class="tabcontent">
+      <h1>${rover}</h1>
+      <img src="${store.r.photos[0].img_src}" height="350px" width="100%" />
+      <ul>
+        <li>Launch date ${store.r.photos[0].rover.launch_date}</li>
+        <li>Landing date  ${store.r.photos[0].rover.landing_date}</li>
+        <li>Status ${store.r.photos[0].rover.status}</li>
+      </ul>
+    </div>
     `;
 };
-
-{
-  /* <header>
-<button id='curiosity'>Curiosity</button>
-</header>
-<main>
-  ${RoverData(rovers[0])}
-</main>
-<footer></footer> */
-}
 
 // create content
 const App = state => {
   const { rovers, apod, pageName } = state;
+  console.log(pageName);
   return `
     <button class="tablink" onclick="openPage('pod', this, 'red')" id="defaultOpen">Picture of the Day</button>
     <button class="tablink" onclick="openPage('curiosity', this, 'green')">Curiosity</button>
     <button class="tablink" onclick="openPage('opportunity', this, 'blue')">Opportunity</button>
     <button class="tablink" onclick="openPage('spirit', this, 'orange')">Spirit</button>
 
-    <div id="pod" class="tabcontent">
-      <h3>Home</h3>
-      <p>Home is where the heart is..</p>
-    </div>
+    ${pageName === 'pod' ? ImageOfTheDay(apod) : ''}
 
-    <div id="curiosity" class="tabcontent">
-      ${pageName === rovers[0].toLowerCase() ? RoverData(rovers[0].toLowerCase()) : '' }
-    </div>
+      ${
+        pageName === rovers[0].toLowerCase()
+          ? RoverData(rovers[0].toLowerCase())
+          : ''
+      }
 
-    <div id="opportunity" class="tabcontent">
-      ${pageName === rovers[1].toLowerCase() ? RoverData(rovers[1].toLowerCase()) : ''}
-    </div>
+      ${
+        pageName === rovers[1].toLowerCase()
+          ? RoverData(rovers[1].toLowerCase())
+          : ''
+      }
 
-    <div id="spirit" class="tabcontent">
-      ${pageName === rovers[2].toLowerCase() ? RoverData(rovers[2].toLowerCase()) : ''}
-    </div>
+      ${
+        pageName === rovers[2].toLowerCase()
+          ? RoverData(rovers[2].toLowerCase())
+          : ''
+      }
     `;
 };
 
@@ -150,21 +145,26 @@ const ImageOfTheDay = apod => {
   // console.log(photodate.getDate(), today.getDate());
 
   // console.log(photodate.getDate() === today.getDate());
-  if (!apod || apod.date === today.getDate()) {
+  if (!apod || photodate === today.getDate()) {
     getImageOfTheDay(store);
   }
 
+  console.log(apod.image.url);
   // check if the photo of the day is actually type video!
   if (apod.media_type === 'video') {
     return `
-            <!-- <p>See today's featured video <a href="${apod.url}">here</a></p> -->
-            <!-- <p>${apod.title}</p> -->
-            <!-- <p>${apod.explanation}</p> -->
+      <div id="pod" class="tabcontent">
+        <p>See today's featured video <a href="${apod.image.url}">here</a></p>
+        <p>${apod.title}</p>
+        <p>${apod.explanation}</p>
+      </div>
         `;
   }
   return `
-            <!-- <img src="${apod.image.url}" height="350px" width="100%" /> -->
-            <!-- <p>${apod.image.explanation}</p> -->
+      <div id="pod" class="tabcontent">
+          <img src="${apod.image.url}" height="350px" width="100%" />
+          <p>${apod.image.explanation}</p>
+      </div>            
         `;
 };
 
@@ -177,7 +177,6 @@ const getImageOfTheDay = state => {
   fetch(`http://localhost:3000/apod`)
     .then(res => res.json())
     .then(apod => {
-      // console.log(apod);
       updateStore(store, { apod });
     });
 };
