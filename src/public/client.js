@@ -7,8 +7,8 @@ const store = {
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
   tab: '', // w
-  r: null, // rover
   pageName: '', //
+  roverData: {},
 };
 
 // add our markup to the page
@@ -16,6 +16,7 @@ const root = document.getElementById('root');
 
 const updateStore = (store, newState) => {
   store = Object.assign(store, newState);
+  console.log(store);
   render(root, store);
 };
 
@@ -64,12 +65,33 @@ const render = async (root, state) => {
 
 const getRoverData = rover => {
   // const rover = state;
-  fetch(`http://localhost:3000/rover/${rover}`)
-    .then(res => res.json())
+  fetch(`http://localhost:3000/rover`)
+    .then(response => response.json())
     .then(r => {
-      console.log(r);
-      updateStore(store, { r });
+      let roversByName = {
+        // curiosity: {}
+      };
+      r.rovers.forEach(rover => {
+        roversByName[rover.name.toLowerCase()] = rover;
+      });
+      console.log('roversByName:', roversByName);
+      const {max_date} = roversByName[rover];
+      fetch(`http://localhost:3000/rover/${rover}/${max_date}`)
+        .then(response => response.json())
+        .then(roverPhotos => {
+          // console.log('photos ', roverPhotos);
+          updateStore(store, { roverData: roversByName[rover] });
+        });
+      // console.log(r);
     });
+
+  // fetch(`http://localhost:3000/rover/${rover}`)
+  //   .then(res => res.json())
+  //   .then(r => {
+  //     console.log(r);
+  //     // Think about adding a fetch here
+  //     updateStore(store, { r });
+  //   });
 };
 
 let called = null;
@@ -103,8 +125,8 @@ const App = state => {
   return `
     <button class="tablink" onclick="openPage('pod', this, 'red')" id="defaultOpen">Picture of the Day</button>
     <button class="tablink" onclick="openPage('curiosity', this, 'green')">Curiosity</button>
-    <button class="tablink" onclick="openPage('opportunity', this, 'blue')">Opportunity</button>
     <button class="tablink" onclick="openPage('spirit', this, 'orange')">Spirit</button>
+    <button class="tablink" onclick="openPage('opportunity', this, 'blue')">Opportunity</button>
 
     ${pageName === 'pod' ? ImageOfTheDay(apod) : ''}
 

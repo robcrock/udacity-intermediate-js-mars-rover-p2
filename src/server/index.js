@@ -17,48 +17,67 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 // const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
 // const nasaApiRoversData = await fetchAsync(`${ROVERS_URL}?api_key=${process.env.API_KEY}`);
 // const nasaApiPhotosData = await fetchAsync(`${ROVERS_URL}/${name}/photos?sol=1000&page=1&api_key=${process.env.API_KEY}`);
-// EXPAMPLE QUERY
-// https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2015-6-3&api_key=DEMO_KEY
 
-app.get('/rover/:name?', async (req, res) => {
+// EXPAMPLE QUERY
+// https://api.nasa.gov/mars-photos/api/v1/rovers/api_key=DEMO_KEY
+
+// https://api.nasa.gov/mars-photos/api/v1/rovers/spirit/photos?sol=1000&page=1&api_key=DEMO_KEY
+// https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2020-08-25&api_key=DEMO_KEY
+
+// Create a FETCH function to send back the max date
+app.get('/rover', async (req, res) => {
   // UNCOMMENT TO RUN LOCAL API KEY
   // DO NOT DELETE
-  const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
-  let url = ROVERS_URL;
-  const { name } = req.params;
-
-  if (name) {
-    url += `/${name}/photos?earth_date=2015-6-3&api_key=${process.env.API_KEY}`;
-  } else {
-    url += `?api_key=${process.env.API_KEY}`;
-  }
-
-  // const url = 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2015-6-3&api_key=DEMO_KEY'
+  const ROVERS_URL = `https://api.nasa.gov/mars-photos/api/v1/rovers/?api_key=${process.env.API_KEY}`;
 
   try {
-    const nasaData = await fetch(url).then(response => response.json());
+    const nasaData = await fetch(ROVERS_URL).then(response => response.json());
 
-    // return res.send(nasaData);
-    // DO NOT DELETE
-    if (name) {
-      return res.send(nasaData);
-    }
+    return res.send(nasaData);
 
     // DO NOT DELETE
-    const roverData = nasaData.rovers.map(data => ({
-      landing_date: data.landing_date,
-      launch_date: data.launch_date,
-      status: data.status,
-    }));
+    // const roverData = nasaData.rovers.map(data => ({
+    //   landing_date: data.landing_date,
+    //   launch_date: data.launch_date,
+    //   status: data.status,
+    // }));
 
     // DO NOT DELETE
-    res.send(roverData);
+    // res.send(roverData);
   } catch (err) {
     console.log('error:', err);
   }
 });
 
-// example API call
+// Create a FETCH function to send back the photo info for the max date.
+app.get('/rover/:name?/:max_date?', async (req, res) => {
+  // UNCOMMENT TO RUN LOCAL API KEY
+  // DO NOT DELETE
+  const ROVERS_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers/';
+  let url = ROVERS_URL;
+  const { name, max_date } = req.params;
+
+  url = `${url}${name}/photos?earth_date=${max_date}&api_key=${process.env.API_KEY}`;
+
+  try {
+    const nasaData = await fetch(url).then(response => response.json());
+
+    return res.send(nasaData);
+
+    // DO NOT DELETE
+    // const roverData = nasaData.rovers.map(data => ({
+    //   landing_date: data.landing_date,
+    //   launch_date: data.launch_date,
+    //   status: data.status,
+    // }));
+
+    // DO NOT DELETE
+    // res.send(roverData);
+  } catch (err) {
+    console.log('error:', err);
+  }
+});
+
 app.get('/apod', async (req, res) => {
   try {
     const image = await fetch(
