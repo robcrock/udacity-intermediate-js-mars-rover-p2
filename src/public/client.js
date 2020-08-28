@@ -7,7 +7,7 @@ const store = {
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
   tab: '', // w
-  pageName: '', //
+  pageName: 'pod', //
   roverData: null,
   roverPhotos: [],
 };
@@ -36,12 +36,16 @@ const App = state => {
   const { rovers, apod, pageName } = state;
   const activeRoverArr = rovers.filter(name => pageName === name.toLowerCase());
   return `
-    <button class="tablink" onclick="ImageOfTheDay('apod')">Picture of the Day</button>
+    <button class="tablink" onclick="openPage('pod')">Picture of the Day</button>
     <button class="tablink" onclick="openPage('curiosity')">Curiosity</button>
     <button class="tablink" onclick="openPage('spirit')">Spirit</button>
     <button class="tablink" onclick="openPage('opportunity')">Opportunity</button>
 
-    ${activeRoverArr[0] ? RoverData(activeRoverArr[0].toLowerCase()) : ''}
+    ${
+      activeRoverArr[0]
+        ? RoverData(activeRoverArr[0].toLowerCase())
+        : ImageOfTheDay(apod)
+    }
   `;
 };
 
@@ -51,12 +55,17 @@ window.addEventListener('load', () => {
 });
 
 // ------------------------------------------------------  COMPONENTS
+
 // Example of a pure function that renders infomation requested from the backend
 const ImageOfTheDay = apod => {
   // If image does not already exist, or it is not from today -- request it again
   const today = new Date();
   const photodate = new Date(apod.date);
-  if (!apod || photodate === today.getDate()) {
+  if (
+    (!apod || photodate === today.getDate()) &&
+    !ImageOfTheDay._imagesRequested
+  ) {
+    ImageOfTheDay._imagesRequested = true;
     getImageOfTheDay(store);
     console.log('Apod: , apod');
   }
@@ -72,20 +81,21 @@ const ImageOfTheDay = apod => {
         <p>${apod.title}</p>
         <p>${apod.explanation}</p>
       </div>
-        `;
+      `;
   }
-  // return `
-      // <div id="pod" class="tabcontent">
-      //     <img src="${apod.image.url}" height="350px" width="100%" />
-      //     <p>${apod.image.explanation}</p>
-      // </div>            
-      //   `;
+  return `
+      <div id="pod" class="tabcontent">
+          <img src="${apod.image.url}" height="350px" width="100%" />
+          <p>${apod.image.explanation}</p>
+      </div>            
+      `;
 };
 
-let called = null;
+// let called = null;
 const RoverData = rover => {
-  if (called !== rover) {
-    called = rover;
+  if (RoverData._called !== rover) {
+    // called = rover;
+    RoverData._called = rover;
     getRoverData(rover);
   }
   if (!store.roverData || !store.roverPhotos.length) {
