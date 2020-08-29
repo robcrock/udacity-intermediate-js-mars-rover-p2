@@ -1,11 +1,11 @@
 /* -------------------  MOBILE  --------------------- */
 
-/* body {
+body {
   display: flex;
   flex-direction: column;
   font-family: Arial;
   min-height: 100vh;
-} */
+}
 
 header {
   /* header styles */
@@ -25,6 +25,7 @@ body, html {
 
 /* Style tab links */
 .tablink {
+  display: block;
   background-color: #555;
   color: white;
   float: left;
@@ -32,25 +33,13 @@ body, html {
   outline: none;
   cursor: pointer;
   padding: 14px 16px;
-  font-size: 17px;
-  width: 25%;
+  font-size: 16px;
+  width: 100%;
 }
 
 .tablink:hover {
   background-color: #777;
 }
-
-/* Style the tab content (and add height:100% for full page content) */
-.tabcontent {
-  /* display: none; */
-  padding: 100px 20px;
-  height: 100%;
-}
-
-#Home {background-color: red;}
-#News {background-color: green;}
-#Contact {background-color: blue;}
-#About {background-color: orange;}
 
 
 footer {
@@ -60,6 +49,16 @@ footer {
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
   /* use mobile */
+  .tablink {
+    background-color: #555;
+    color: white;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    width: 25%;
+  }
 }
 
 /* -------------------  DESKTOP  -------------------- */
