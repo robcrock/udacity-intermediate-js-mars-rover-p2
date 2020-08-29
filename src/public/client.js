@@ -11,18 +11,23 @@ const store = {
 // add our markup to the page
 const root = document.getElementById('root');
 
-// ------------------------------------------------------  OTHER FUNCTIONS
-function RoverImages(imgArray) {
-  let output = '';
-  imgArray.forEach(img => {
-    output += `<img src="${img}" height="350px" width="100%" />`;
-  });
-  return output;
-}
-
 const render = async (rootParam, state) => {
   rootParam.innerHTML = App(state);
 };
+
+// listening for load event because page should load before any JS is called
+window.addEventListener('load', () => {
+  render(root, store);
+});
+
+// ------------------------------------------------------  UTIL FUNCTIONS BELOW
+function RoverImages(imgArray) {
+  const output = imgArray.map(
+    img => `<img src="${img}" height="350px" width="100%" />`
+  );
+  output.join('');
+  return output;
+}
 
 const updateStore = (storeParam, newState) => {
   let newStore = storeParam;
@@ -35,8 +40,9 @@ const updateStore = (storeParam, newState) => {
 function openPage(pageName) {
   updateStore(store, { pageName });
 }
+// ------------------------------------------------------  UTIL FUNCTIONS ABOVE
 
-// ------------------------------------------------------  API CALLS
+// ------------------------------------------------------  API CALLS BELOW
 const getImageOfTheDay = state => {
   const { apod } = state;
 
@@ -70,12 +76,9 @@ const getRoverData = rover => {
         });
     });
 };
-
-// ------------------------------------------------------  FLOW
+// ------------------------------------------------------  API CALLS ABOVE
 
 // ------------------------------------------------- COMPONENTS BELOW
-
-// Example of a pure function that renders infomation requested from the backend
 const ImageOfTheDay = apod => {
   // If image does not already exist, or it is not from today -- request it again
   const today = new Date();
@@ -130,7 +133,6 @@ const RoverData = rover => {
     </div>
     `;
 };
-
 // ------------------------------------------------- COMPONENTS ABOVE
 
 // create content
@@ -150,8 +152,3 @@ const App = state => {
     }
   `;
 };
-
-// listening for load event because page should load before any JS is called
-window.addEventListener('load', () => {
-  render(root, store);
-});
