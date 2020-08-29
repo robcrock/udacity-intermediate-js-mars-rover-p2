@@ -1,7 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-shadow */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-use-before-define */
 const store = {
   user: { name: 'Student' },
   apod: '',
@@ -15,10 +11,23 @@ const store = {
 // add our markup to the page
 const root = document.getElementById('root');
 
-const updateStore = (store, newState) => {
-  store = Object.assign(store, newState);
-  console.log(store);
-  render(root, store);
+// ------------------------------------------------------  OTHER FUNCTIONS
+function RoverImages(imgArray) {
+  let output = '';
+  imgArray.forEach(img => {
+    output += `<img src="${img}" height="350px" width="100%" />`;
+  });
+  return output;
+}
+
+const render = async (rootParam, state) => {
+  rootParam.innerHTML = App(state);
+};
+
+const updateStore = (storeParam, newState) => {
+  let newStore = storeParam;
+  newStore = Object.assign(store, newState);
+  render(root, newStore);
 };
 
 // W3Schools tab reference:
@@ -27,34 +36,44 @@ function openPage(pageName) {
   updateStore(store, { pageName });
 }
 
-const render = async (root, state) => {
-  root.innerHTML = App(state);
+// ------------------------------------------------------  API CALLS
+const getImageOfTheDay = state => {
+  const { apod } = state;
+
+  fetch(`http://localhost:3000/apod`)
+    .then(res => res.json())
+    .then(apod => {
+      updateStore(store, { apod });
+    });
 };
 
-// create content
-const App = state => {
-  const { rovers, apod, pageName } = state;
-  const activeRoverArr = rovers.filter(name => pageName === name.toLowerCase());
-  return `
-    <button class="tablink" onclick="openPage('pod')">Picture of the Day</button>
-    <button class="tablink" onclick="openPage('curiosity')">Curiosity</button>
-    <button class="tablink" onclick="openPage('spirit')">Spirit</button>
-    <button class="tablink" onclick="openPage('opportunity')">Opportunity</button>
+const getRoverData = rover => {
+  fetch(`http://localhost:3000/rover`)
+    .then(response => response.json())
+    .then(r => {
+      const roversByName = {
+        // curiosity: {}
+      };
 
-    ${
-      activeRoverArr[0]
-        ? RoverData(activeRoverArr[0].toLowerCase())
-        : ImageOfTheDay(apod)
-    }
-  `;
+      r.rovers.forEach(roverPram => {
+        roversByName[roverPram.name.toLowerCase()] = roverPram;
+      });
+
+      const { max_date: maxDate } = roversByName[rover];
+      fetch(`http://localhost:3000/rover/${rover}/${maxDate}`)
+        .then(response => response.json())
+        .then(roverPhotos => {
+          updateStore(store, {
+            roverData: roversByName[rover],
+            roverPhotos: roverPhotos.photos.map(photo => photo.img_src),
+          });
+        });
+    });
 };
 
-// listening for load event because page should load before any JS is called
-window.addEventListener('load', () => {
-  render(root, store);
-});
+// ------------------------------------------------------  FLOW
 
-// ------------------------------------------------------  COMPONENTS
+// ------------------------------------------------- COMPONENTS BELOW
 
 // Example of a pure function that renders infomation requested from the backend
 const ImageOfTheDay = apod => {
@@ -67,7 +86,6 @@ const ImageOfTheDay = apod => {
   ) {
     ImageOfTheDay._imagesRequested = true;
     getImageOfTheDay(store);
-    console.log('Apod: , apod');
   }
 
   if (!apod) {
@@ -91,10 +109,8 @@ const ImageOfTheDay = apod => {
       `;
 };
 
-// let called = null;
 const RoverData = rover => {
   if (RoverData._called !== rover) {
-    // called = rover;
     RoverData._called = rover;
     getRoverData(rover);
   }
@@ -115,45 +131,27 @@ const RoverData = rover => {
     `;
 };
 
-// ------------------------------------------------------  API CALLS
-const getImageOfTheDay = state => {
-  const { apod } = state;
+// ------------------------------------------------- COMPONENTS ABOVE
 
-  fetch(`http://localhost:3000/apod`)
-    .then(res => res.json())
-    .then(apod => {
-      updateStore(store, { apod });
-    });
+// create content
+const App = state => {
+  const { rovers, apod, pageName } = state;
+  const activeRoverArr = rovers.filter(name => pageName === name.toLowerCase());
+  return `
+    <button class="tablink" onclick="openPage('pod')">Picture of the Day</button>
+    <button class="tablink" onclick="openPage('curiosity')">Curiosity</button>
+    <button class="tablink" onclick="openPage('spirit')">Spirit</button>
+    <button class="tablink" onclick="openPage('opportunity')">Opportunity</button>
+
+    ${
+      activeRoverArr[0]
+        ? RoverData(activeRoverArr[0].toLowerCase())
+        : ImageOfTheDay(apod)
+    }
+  `;
 };
 
-const getRoverData = rover => {
-  fetch(`http://localhost:3000/rover`)
-    .then(response => response.json())
-    .then(r => {
-      const roversByName = {
-        // curiosity: {}
-      };
-
-      r.rovers.forEach(rover => {
-        roversByName[rover.name.toLowerCase()] = rover;
-      });
-      const { max_date } = roversByName[rover];
-      fetch(`http://localhost:3000/rover/${rover}/${max_date}`)
-        .then(response => response.json())
-        .then(roverPhotos => {
-          updateStore(store, {
-            roverData: roversByName[rover],
-            roverPhotos: roverPhotos.photos.map(photo => photo.img_src),
-          });
-        });
-    });
-};
-
-// ------------------------------------------------------  OTHER FUNCTIONS
-function RoverImages(imgArray) {
-  let output = '';
-  imgArray.forEach(img => {
-    output += `<img src="${img}" height="350px" width="100%" />`;
-  });
-  return output;
-}
+// listening for load event because page should load before any JS is called
+window.addEventListener('load', () => {
+  render(root, store);
+});
