@@ -1,0 +1,2 @@
+# Ingore files related to API keys
+.env
