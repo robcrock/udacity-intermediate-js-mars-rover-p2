@@ -33,8 +33,7 @@ function RoverImages(imgArray) {
   const output = imgArray.map(
     img => `<img src="${img}" height="350px" width="100%" />`
   );
-  output.join('');
-  return output;
+  return output.join('');
 }
 
 const updateStore = (storeParam, newState) => {
