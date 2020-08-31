@@ -7,10 +7,6 @@ body {
   min-height: 100vh;
 }
 
-header {
-  /* header styles */
-}
-
 main {
   flex: 1;
   padding: 20px;
@@ -41,11 +37,6 @@ body, html {
   background-color: #777;
 }
 
-
-footer {
-  /* footer styles */
-}
-
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
   /* use mobile */
@@ -59,16 +50,4 @@ footer {
     padding: 14px 16px;
     width: 25%;
   }
-}
-
-/* -------------------  DESKTOP  -------------------- */
-
-@media (min-width: 1224px) {
-  /* use mobile */
-}
-
-/* -------------------  LARGE SCREENS  -------------- */
-
-@media (min-width: 1824px) {
-  /* use mobile */
 }
