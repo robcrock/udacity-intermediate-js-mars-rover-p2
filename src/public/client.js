@@ -1,3 +1,10 @@
+/* eslint-disable no-undef */
+const map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
+const map2 = map1.set('b', 50);
+map1.get('b'); // 2
+map2.get('b'); // 50
+console.log(map1, map2);
+
 const store = {
   user: { name: 'Student' },
   apod: '',
@@ -12,6 +19,7 @@ const store = {
 const root = document.getElementById('root');
 
 const render = async (rootParam, state) => {
+  // eslint-disable-next-line no-use-before-define
   rootParam.innerHTML = App(state);
 };
 
