@@ -30,7 +30,6 @@ function RoverImages(imgArray) {
 }
 
 const updateStore = (storeParam, newState) => {
-  console.log('Store parameter ', storeParam);
   const newMap = storeParam.merge(newState);
   render(root, newMap);
 };
@@ -38,7 +37,6 @@ const updateStore = (storeParam, newState) => {
 // W3Schools tab reference:
 // https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
 function setTab(tab) {
-  console.log('Tab name ', tab);
   const newMap = map.set('tab', tab);
   render(root, newMap);
 }
@@ -116,28 +114,26 @@ const ImageOfTheDay = apod => {
 };
 
 const RoverData = (rover, state) => {
-  console.log('Rover ', rover);
   if (RoverData._called !== rover) {
     RoverData._called = rover;
     getRoverData(rover, state);
   }
-  console.log('Store ', store);
-  console.log('State ', state);
-  if (!state.roverData || !state.roverPhotos.length) {
+  // console.log('Rover photos ', state.get('roverPhotos').toJS());
+  if (!state.get('roverData') || !state.get('roverPhotos').size) {
     return `<h1>Loading...</h1>`;
   }
   return `
     <div class="tabcontent">
-      <h1>${state.roverData.name}</h1>
+      <h1>${state.getIn(['roverData', 'name'])}</h1>
       <ul>
-        <li>Launch date ${state.roverData.launch_date}</li>
-        <li>Landing date  ${state.roverData.landing_date}</li>
-        <li>Status ${state.roverData.status}</li>
-        <li>Most recent photos taken on ${state.roverData.max_date}</li>
+        <li>Launch date ${state.getIn(['roverData', 'launch_date'])}</li>
+        <li>Landing date  ${state.getIn(['roverData', 'landing_date'])}</li>
+        <li>Status ${state.getIn(['roverData', 'status'])}</li>
+        <li>Most recent photos taken on ${state.getIn(['roverData', 'max_date'])}</li>
       </ul>
-      ${RoverImages(state.roverPhotos)}
-    </div>
-    `;
+      ${RoverImages(state.get('roverPhotos').toJS())}
+      </div>
+      `;
 };
 // ------------------------------------------------- COMPONENTS ABOVE
 
@@ -154,7 +150,7 @@ const App = state => {
 
     ${
       activeRoverArr[0]
-        ? RoverData(activeRoverArr[0].toLowerCase(), stateObj)
+        ? RoverData(activeRoverArr[0].toLowerCase(), state)
         : ImageOfTheDay(apod)
     }
   `;
