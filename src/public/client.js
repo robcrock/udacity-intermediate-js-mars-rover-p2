@@ -1,14 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
-const store = {
+const map = Immutable.Map({
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
   tab: 'pod',
   roverData: null,
   roverPhotos: [],
-};
-
-const map = Immutable.Map(store);
+});
 
 const root = document.getElementById('root');
 
@@ -26,7 +24,7 @@ function RoverImages(imgArray) {
   const output = imgArray.map(
     img => `<img src="${img}" height="350px" width="100%" />`
   );
-  return output;
+  return output.join('');
 }
 
 const updateStore = (storeParam, newState) => {
@@ -118,7 +116,6 @@ const RoverData = (rover, state) => {
     RoverData._called = rover;
     getRoverData(rover, state);
   }
-  // console.log('Rover photos ', state.get('roverPhotos').toJS());
   if (!state.get('roverData') || !state.get('roverPhotos').size) {
     return `<h1>Loading...</h1>`;
   }
