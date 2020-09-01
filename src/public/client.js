@@ -1,10 +1,5 @@
 /* eslint-disable no-undef */
-const map1 = Immutable.Map({ a: 1, b: 2, c: 3 });
-const map2 = map1.set('b', 50);
-map1.get('b'); // 2
-map2.get('b'); // 50
-console.log(map1, map2);
-
+/* eslint-disable no-use-before-define */
 const store = {
   user: { name: 'Student' },
   apod: '',
@@ -15,17 +10,17 @@ const store = {
   roverPhotos: [],
 };
 
-// add our markup to the page
+const map = Immutable.Map(store);
+
 const root = document.getElementById('root');
 
 const render = async (rootParam, state) => {
-  // eslint-disable-next-line no-use-before-define
   rootParam.innerHTML = App(state);
 };
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-  render(root, store);
+  render(root, map);
 });
 
 // ------------------------------------------------------  UTIL FUNCTIONS BELOW
@@ -33,30 +28,33 @@ function RoverImages(imgArray) {
   const output = imgArray.map(
     img => `<img src="${img}" height="350px" width="100%" />`
   );
-  return output.join('');
+  return output;
 }
 
 const updateStore = (storeParam, newState) => {
-  let newStore = storeParam;
-  newStore = Object.assign(store, newState);
-  render(root, newStore);
+  const newMap = storeParam.merge(newState);
+  render(root, newMap);
 };
 
 // W3Schools tab reference:
 // https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
-function openPage(pageName) {
-  updateStore(store, { pageName });
+function setPageName(pageName) {
+  console.log('Page name ', pageName);
+  map.set('pageName', pageName);
+  console.log(map);
+  // App(map);
 }
 // ------------------------------------------------------  UTIL FUNCTIONS ABOVE
 
 // ------------------------------------------------------  API CALLS BELOW
 const getImageOfTheDay = state => {
-  const { apod } = state;
+  const stateObj = state.toJS();
+  const { apod } = stateObj;
 
   fetch(`http://localhost:3000/apod`)
     .then(res => res.json())
     .then(apod => {
-      updateStore(store, { apod });
+      updateStore(map, { apod });
     });
 };
 
@@ -76,7 +74,7 @@ const getRoverData = rover => {
       fetch(`http://localhost:3000/rover/${rover}/${maxDate}`)
         .then(response => response.json())
         .then(roverPhotos => {
-          updateStore(store, {
+          updateStore(map, {
             roverData: roversByName[rover],
             roverPhotos: roverPhotos.photos.map(photo => photo.img_src),
           });
@@ -95,7 +93,7 @@ const ImageOfTheDay = apod => {
     !ImageOfTheDay._imagesRequested
   ) {
     ImageOfTheDay._imagesRequested = true;
-    getImageOfTheDay(store);
+    getImageOfTheDay(map);
   }
 
   if (!apod) {
@@ -144,13 +142,15 @@ const RoverData = rover => {
 
 // create content
 const App = state => {
-  const { rovers, apod, pageName } = state;
+  const stateObj = state.toJS();
+  const { rovers, apod, pageName } = stateObj;
   const activeRoverArr = rovers.filter(name => pageName === name.toLowerCase());
+  console.log('Page name ', pageName);
   return `
-    <button class="tablink" onclick="openPage('pod')">Picture of the Day</button>
-    <button class="tablink" onclick="openPage('curiosity')">Curiosity</button>
-    <button class="tablink" onclick="openPage('spirit')">Spirit</button>
-    <button class="tablink" onclick="openPage('opportunity')">Opportunity</button>
+    <button class="tablink" onclick="setPageName('pod')">Picture of the Day</button>
+    <button class="tablink" onclick="setPageName('curiosity')">Curiosity</button>
+    <button class="tablink" onclick="setPageName('spirit')">Spirit</button>
+    <button class="tablink" onclick="setPageName('opportunity')">Opportunity</button>
 
     ${
       activeRoverArr[0]
