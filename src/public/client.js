@@ -1,11 +1,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-use-before-define */
 const store = {
-  user: { name: 'Student' },
   apod: '',
   rovers: ['Curiosity', 'Opportunity', 'Spirit'],
-  tab: '', // w
-  pageName: 'pod', //
+  tab: 'pod',
   roverData: null,
   roverPhotos: [],
 };
@@ -32,17 +30,17 @@ function RoverImages(imgArray) {
 }
 
 const updateStore = (storeParam, newState) => {
+  console.log('Store parameter ', storeParam);
   const newMap = storeParam.merge(newState);
   render(root, newMap);
 };
 
 // W3Schools tab reference:
 // https://www.w3schools.com/howto/howto_js_full_page_tabs.asp
-function setPageName(pageName) {
-  console.log('Page name ', pageName);
-  map.set('pageName', pageName);
-  console.log(map);
-  // App(map);
+function setTab(tab) {
+  console.log('Tab name ', tab);
+  const newMap = map.set('tab', tab);
+  render(root, newMap);
 }
 // ------------------------------------------------------  UTIL FUNCTIONS ABOVE
 
@@ -54,11 +52,11 @@ const getImageOfTheDay = state => {
   fetch(`http://localhost:3000/apod`)
     .then(res => res.json())
     .then(apod => {
-      updateStore(map, { apod });
+      updateStore(state, { apod });
     });
 };
 
-const getRoverData = rover => {
+const getRoverData = (rover, state) => {
   fetch(`http://localhost:3000/rover`)
     .then(response => response.json())
     .then(r => {
@@ -74,7 +72,7 @@ const getRoverData = rover => {
       fetch(`http://localhost:3000/rover/${rover}/${maxDate}`)
         .then(response => response.json())
         .then(roverPhotos => {
-          updateStore(map, {
+          updateStore(state, {
             roverData: roversByName[rover],
             roverPhotos: roverPhotos.photos.map(photo => photo.img_src),
           });
@@ -117,24 +115,27 @@ const ImageOfTheDay = apod => {
       `;
 };
 
-const RoverData = rover => {
+const RoverData = (rover, state) => {
+  console.log('Rover ', rover);
   if (RoverData._called !== rover) {
     RoverData._called = rover;
-    getRoverData(rover);
+    getRoverData(rover, state);
   }
-  if (!store.roverData || !store.roverPhotos.length) {
+  console.log('Store ', store);
+  console.log('State ', state);
+  if (!state.roverData || !state.roverPhotos.length) {
     return `<h1>Loading...</h1>`;
   }
   return `
     <div class="tabcontent">
-      <h1>${store.roverData.name}</h1>
+      <h1>${state.roverData.name}</h1>
       <ul>
-        <li>Launch date ${store.roverData.launch_date}</li>
-        <li>Landing date  ${store.roverData.landing_date}</li>
-        <li>Status ${store.roverData.status}</li>
-        <li>Most recent photos taken on ${store.roverData.max_date}</li>
+        <li>Launch date ${state.roverData.launch_date}</li>
+        <li>Landing date  ${state.roverData.landing_date}</li>
+        <li>Status ${state.roverData.status}</li>
+        <li>Most recent photos taken on ${state.roverData.max_date}</li>
       </ul>
-      ${RoverImages(store.roverPhotos)}
+      ${RoverImages(state.roverPhotos)}
     </div>
     `;
 };
@@ -143,18 +144,17 @@ const RoverData = rover => {
 // create content
 const App = state => {
   const stateObj = state.toJS();
-  const { rovers, apod, pageName } = stateObj;
-  const activeRoverArr = rovers.filter(name => pageName === name.toLowerCase());
-  console.log('Page name ', pageName);
+  const { rovers, apod, tab } = stateObj;
+  const activeRoverArr = rovers.filter(name => tab === name.toLowerCase());
   return `
-    <button class="tablink" onclick="setPageName('pod')">Picture of the Day</button>
-    <button class="tablink" onclick="setPageName('curiosity')">Curiosity</button>
-    <button class="tablink" onclick="setPageName('spirit')">Spirit</button>
-    <button class="tablink" onclick="setPageName('opportunity')">Opportunity</button>
+    <button class="tablink" onclick="setTab('pod')">Picture of the Day</button>
+    <button class="tablink" onclick="setTab('curiosity')">Curiosity</button>
+    <button class="tablink" onclick="setTab('spirit')">Spirit</button>
+    <button class="tablink" onclick="setTab('opportunity')">Opportunity</button>
 
     ${
       activeRoverArr[0]
-        ? RoverData(activeRoverArr[0].toLowerCase())
+        ? RoverData(activeRoverArr[0].toLowerCase(), stateObj)
         : ImageOfTheDay(apod)
     }
   `;
